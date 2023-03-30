@@ -49,7 +49,8 @@ int main()
 {
 	//init game's window
 	InitWindow(800, 600, "Pong")
-	SetWindowState(FLAG_VSYNC_HINT); //set VSync to lock FPS
+	//set VSync to lock FPS
+	SetWindowState(FLAG_VSYNC_HINT); 
 
 	//init ball's stats
 	Ball ball;
