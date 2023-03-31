@@ -28,7 +28,8 @@ struct Paddle
 
 	void Draw()
 	{
-		DrawRectangleRec(GetRect(), WHITE);
+		//DrawRectangleRec(GetRect(), WHITE);
+		DrawRectangleRounded(GetRect(), 15, 5, WHITE);
 	}
 };
 
@@ -45,12 +46,16 @@ float randomballstarting() {
 	return ballstartingmultiplier;
 }
 
+Vector4 lightBlue = { 0.2f, 0.7f, 0.8f, 1.0f };
+Vector4 lightRed = {0.83f, 0.3f, 0.37f, 1.0f};
+Color circleColor = { 255, 255, 255, 70 };
+Color BG01 = ColorFromNormalized(lightBlue);
+Color BG02 = ColorFromNormalized(lightRed);
 int main()
 {
 	//init game's window
-	InitWindow(800, 600, "Pong")
-	//set VSync to lock FPS
-	SetWindowState(FLAG_VSYNC_HINT); 
+	InitWindow(800, 600, "Pong");
+	SetWindowState(FLAG_VSYNC_HINT); //set VSync to lock FPS
 
 	//init ball's stats
 	Ball ball;
@@ -215,8 +220,11 @@ int main()
 			ballMultiplierY = randomballstarting();
 		}
 
-		//start the rendering proccess
+		//start the rendering proccess and draw backgrounds
 		BeginDrawing();
+		DrawRectangle(0, 0, GetScreenWidth() / 2, GetScreenHeight(), BG01);
+		DrawRectangle(GetScreenWidth() / 2, 0, GetScreenWidth() / 2, GetScreenHeight(), BG02);
+		DrawCircle(GetScreenWidth() / 2, GetScreenHeight() / 2, 125, circleColor);
 		ClearBackground(BLACK); //clear the background to display a solid background color
 		
 		//call draw functions
@@ -229,8 +237,8 @@ int main()
 		{
 			int textWidth = MeasureText(winnerText, 60);
 			int spacetoRestartwidth = MeasureText(spacetoRestart, 25);
-			DrawText(winnerText, GetScreenWidth() / 2 - textWidth / 2, GetScreenHeight() / 2 - 30, 60, YELLOW);
-			DrawText(spacetoRestart, GetScreenWidth() / 2 - spacetoRestartwidth / 2 , GetScreenHeight() / 2 + 50, 25, ORANGE);
+			DrawText(winnerText, GetScreenWidth() / 2 - textWidth / 2, GetScreenHeight() / 2 - 30, 60, WHITE);
+			DrawText(spacetoRestart, GetScreenWidth() / 2 - spacetoRestartwidth / 2 , GetScreenHeight() / 2 + 50, 25, WHITE);
 		}
 
 		//draw scores
