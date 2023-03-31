@@ -224,8 +224,10 @@ int main()
 		BeginDrawing();
 		DrawRectangle(0, 0, GetScreenWidth() / 2, GetScreenHeight(), BG01);
 		DrawRectangle(GetScreenWidth() / 2, 0, GetScreenWidth() / 2, GetScreenHeight(), BG02);
+		DrawRectangle(GetScreenWidth() / 2 - 2.5 , 0, 5, GetScreenHeight(), circleColor);
 		DrawCircle(GetScreenWidth() / 2, GetScreenHeight() / 2, 125, circleColor);
 		ClearBackground(BLACK); //clear the background to display a solid background color
+		
 		
 		//call draw functions
 		ball.Draw();
