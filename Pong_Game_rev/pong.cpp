@@ -1,5 +1,6 @@
 #include "raylib.h"
 #include <cstdlib>
+#include <iostream>
 //init the ball variables & draw the balls onto player's screen
 struct Ball
 {
@@ -20,6 +21,9 @@ struct Paddle
 	float speed;
 	float width, height;
 	int score;
+	bool scalingUp, scalingDown;
+	float textScale = 1.0f;
+	float textScaleSpeed = 0.1f;
 
 	Rectangle GetRect()
 	{
@@ -51,11 +55,13 @@ Vector4 lightRed = {0.83f, 0.3f, 0.37f, 1.0f};
 Color circleColor = { 255, 255, 255, 70 };
 Color BG01 = ColorFromNormalized(lightBlue);
 Color BG02 = ColorFromNormalized(lightRed);
+const char* currentDir = GetWorkingDirectory();
 int main()
 {
 	//init game's window
 	InitWindow(800, 600, "Pong");
 	SetWindowState(FLAG_VSYNC_HINT); //set VSync to lock FPS
+	InitAudioDevice(); //initialize the audio device to play sounds
 
 	//init ball's stats
 	Ball ball;
@@ -73,6 +79,8 @@ int main()
 	leftPaddle.height = 100;
 	leftPaddle.speed = 500;
 	leftPaddle.score = 0;
+	leftPaddle.scalingUp = false;
+	leftPaddle.scalingDown = false;
 
 	//init right paddle's stats
 	Paddle rightPaddle;
@@ -82,6 +90,8 @@ int main()
 	rightPaddle.height = 100;
 	rightPaddle.speed = 500;
 	rightPaddle.score = 0;
+	rightPaddle.scalingUp = false;
+	rightPaddle.scalingDown = false;
 
 	//text
 	const char* winnerText = nullptr;
@@ -169,6 +179,7 @@ int main()
 				spacetoRestart = "Press space to restart";
 			}
 			else {
+				rightPaddle.scalingUp = true;
 				ball.x = GetScreenWidth() / 2;
 				ball.y = GetScreenHeight() / 2;
 				ball.speedX = 175;
@@ -179,6 +190,8 @@ int main()
 				spacetoRestart = "";
 				ballMultiplierX = randomballstarting();
 				ballMultiplierY = randomballstarting();
+				Sound goal_sound = LoadSound(TextFormat("%s/resources/goal.wav", currentDir));
+				PlaySound(goal_sound);
 			}
 			
 		}
@@ -190,6 +203,7 @@ int main()
 				spacetoRestart = "Press space to restart";
 			}
 			else {
+				leftPaddle.scalingUp = true;
 				ball.x = GetScreenWidth() / 2;
 				ball.y = GetScreenHeight() / 2;
 				ball.speedX = 175;
@@ -200,6 +214,8 @@ int main()
 				spacetoRestart = "";
 				ballMultiplierX = randomballstarting();
 				ballMultiplierY = randomballstarting();
+				Sound goal_sound = LoadSound(TextFormat("%s/resources/goal.wav", currentDir));
+				PlaySound(goal_sound);
 			}
 		}
 
@@ -224,7 +240,7 @@ int main()
 		BeginDrawing();
 		DrawRectangle(0, 0, GetScreenWidth() / 2, GetScreenHeight(), BG01);
 		DrawRectangle(GetScreenWidth() / 2, 0, GetScreenWidth() / 2, GetScreenHeight(), BG02);
-		DrawRectangle(GetScreenWidth() / 2 - 2.5 , 0, 5, GetScreenHeight(), circleColor);
+		//DrawRectangle(GetScreenWidth() / 2 - 2.5 , 0, 5, GetScreenHeight(), circleColor);
 		DrawCircle(GetScreenWidth() / 2, GetScreenHeight() / 2, 125, circleColor);
 		ClearBackground(BLACK); //clear the background to display a solid background color
 		
@@ -243,15 +259,48 @@ int main()
 			DrawText(spacetoRestart, GetScreenWidth() / 2 - spacetoRestartwidth / 2 , GetScreenHeight() / 2 + 50, 25, WHITE);
 		}
 
+		//scores animation text
+		if (leftPaddle.scalingUp) {
+			leftPaddle.textScale += leftPaddle.textScaleSpeed;
+			if (leftPaddle.textScale >= 1.5f) {
+				leftPaddle.textScale = 1.5f;
+				leftPaddle.scalingUp = false;
+				leftPaddle.scalingDown = true;
+			}
+		}
+		if (leftPaddle.scalingDown) {
+			leftPaddle.textScale -= leftPaddle.textScaleSpeed;
+			if (leftPaddle.textScale <= 1.0f) {
+				leftPaddle.scalingDown = false;
+				leftPaddle.textScale = 1.0f;
+			}
+		}
+
+		if (rightPaddle.scalingUp) {
+			rightPaddle.textScale += rightPaddle.textScaleSpeed;
+			if (rightPaddle.textScale >= 1.5f) {
+				rightPaddle.textScale = 1.5f;
+				rightPaddle.scalingUp = false;
+				rightPaddle.scalingDown = true;
+			}
+		}
+		if (rightPaddle.scalingDown) {
+			rightPaddle.textScale -= rightPaddle.textScaleSpeed;
+			if (rightPaddle.textScale <= 1.0f) {
+				rightPaddle.scalingDown = false;
+				rightPaddle.textScale = 1.0f;
+			}
+		}
+
 		//draw scores
-		DrawText(TextFormat("Score: %i", leftPaddle.score), 15, 10, 25, WHITE);
-		DrawText(TextFormat("Score: %i", rightPaddle.score), GetScreenWidth() - (15 + 100), 10, 25, WHITE);
+		DrawText(TextFormat("Score: %i", leftPaddle.score), 15, 10, 25 * leftPaddle.textScale, WHITE);
+		DrawText(TextFormat("Score: %i", rightPaddle.score), GetScreenWidth() - (15 + 100), 10, 25 * rightPaddle.textScale, WHITE);
 
 
 		//DrawFPS(10, 10); Use this to show FPS Counter
 		EndDrawing();
 	}
-
+	CloseAudioDevice();
 	CloseWindow();
 
 	return 0;
