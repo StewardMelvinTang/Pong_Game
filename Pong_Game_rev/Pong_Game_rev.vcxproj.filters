@@ -23,5 +23,17 @@
     <Media Include="goal.wav">
       <Filter>resources</Filter>
     </Media>
+    <Media Include="resources\music.wav">
+      <Filter>resources</Filter>
+    </Media>
+    <Media Include="resources\hitpaddle.wav">
+      <Filter>resources</Filter>
+    </Media>
+    <Media Include="resources\bounce.wav">
+      <Filter>resources</Filter>
+    </Media>
+    <Media Include="resources\gameended.wav">
+      <Filter>resources</Filter>
+    </Media>
   </ItemGroup>
 </Project>
