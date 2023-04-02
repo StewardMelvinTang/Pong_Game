@@ -55,6 +55,15 @@ float randomballstarting() {
 	return ballstartingmultiplier;
 }
 
+float increaseBallSpeed(Ball ball, float speedmultiplier) {
+	if (ball.speedX < 900 && ball.speedX > -900) {
+		return ball.speedX *= speedmultiplier;
+	}
+	else
+	{
+		return ball.speedX * -1;
+	}
+}
 //initialize color
 Vector4 lightBlue = { 0.2f, 0.7f, 0.8f, 1.0f };
 Vector4 lightRed = {0.83f, 0.3f, 0.37f, 1.0f};
@@ -64,7 +73,10 @@ Color BG02 = ColorFromNormalized(lightRed);
 const char* currentDir = GetWorkingDirectory(); //initialize current working directory
 
 //initialize timer delay
-float delayTimer = 2.0f;
+float delayTimer = 4.0f;
+float timerCountdown_fontSize = 125;
+
+
 
 int main()
 {
@@ -72,6 +84,7 @@ int main()
 	InitWindow(1300, 800, "Pong");
 	SetWindowState(FLAG_VSYNC_HINT); //set VSync to lock FPS
 	InitAudioDevice(); //initialize the audio device to play sounds
+
 
 	//init CTime for stopwatch
 	int hours = 0, minutes = 0, seconds = 0, milliseconds = 0;
@@ -116,26 +129,40 @@ int main()
 	const char* spacetoRestart = "Press space to restart";
 
 	//play looping music
-	Sound music = LoadSound(TextFormat("%s/resources/music.wav", currentDir));
 	Sound goal_sound = LoadSound(TextFormat("%s/resources/goal.wav", currentDir));
 	Sound bounce_sound = LoadSound(TextFormat("%s/resources/bounce.wav", currentDir));
 	Sound hit_paddle_sound = LoadSound(TextFormat("%s/resources/hitpaddle.wav", currentDir));
 	Sound game_ended_sound = LoadSound(TextFormat("%s/resources/gameended.wav", currentDir));
+	Sound countdown_sound = LoadSound(TextFormat("%s/resources/countdown.wav", currentDir));
+	Sound music;
+
+	//randomize music index to play
+	srand(time(NULL)); //init random seed
+	int randomizedmusic = rand() % 3 + 1;
+	std::cout << "Music : " << randomizedmusic << std::endl;
+	switch (randomizedmusic) {
+		case 1: 
+			music = LoadSound(TextFormat("%s/resources/music01.wav", currentDir));
+			break;
+		case 2: 
+			music = LoadSound(TextFormat("%s/resources/music02.wav", currentDir));
+			break;
+		case 3: 
+			music = LoadSound(TextFormat("%s/resources/music03.wav", currentDir));
+			break;
+	}
+	
+
 	SetSoundVolume(bounce_sound, 0.4f); //set bounce sound to 50%
 	SetSoundVolume(hit_paddle_sound, 0.4f);
 	SetSoundVolume(goal_sound, 0.4f);
 	SetSoundVolume(game_ended_sound, 0.4f);
-	SetSoundVolume(music, 0.25f); //set volume to 25%
-	PlaySound(music);
+	SetSoundVolume(music, 0.35f); //set volume to 25%
+
 	
 	
 	while (!WindowShouldClose())
 	{
-		delayTimer -= GetFrameTime();
-		if (delayTimer <= 0) {
-			ball.canMove = true;
-			current_time = 0;
-		}
 
 		if (ball.canMove) {
 			ball.x += ball.speedX * GetFrameTime();
@@ -193,7 +220,8 @@ int main()
 		{
 			if (ball.speedX < 0 )
 			{
-				ball.speedX *= -1.1f;
+				ball.speedX = increaseBallSpeed(ball, -1.2f);
+				std::cout << ball.speedX << std::endl;
 				rightPaddle.speed *= 1.05f;
 				leftPaddle.speed *= 1.05f;
 				ball.speedY = (ball.y - leftPaddle.y) / (leftPaddle.height / 2) * ball.speedX;
@@ -204,7 +232,8 @@ int main()
 		{
 			if (ball.speedX > 0)
 			{
-				ball.speedX *= -1.1f;
+				ball.speedX = increaseBallSpeed(ball, -1.2f);
+				std::cout << ball.speedX << std::endl;
 				rightPaddle.speed *= 1.05f;
 				leftPaddle.speed *= 1.05f;
 				ball.speedY = (ball.y - rightPaddle.y) / (rightPaddle.height / 2) * -ball.speedX;
@@ -318,7 +347,6 @@ int main()
 				leftPaddle.textScale = 1.0f;
 			}
 		}
-
 		if (rightPaddle.scalingUp) {
 			rightPaddle.textScale += rightPaddle.textScaleSpeed;
 			if (rightPaddle.textScale >= 2.0f) {
@@ -334,9 +362,8 @@ int main()
 				rightPaddle.textScale = 1.0f;
 			}
 		}
-
 		//music looping system
-		if (!IsSoundPlaying(music)) {
+		if (!IsSoundPlaying(music) && delayTimer <= 0) {
 			PlaySound(music);
 		}
 
@@ -361,7 +388,35 @@ int main()
 		DrawText(TextFormat("Score: %i", leftPaddle.score), 15, 10, 35 * leftPaddle.textScale, WHITE);
 		DrawText(TextFormat("Score: %i", rightPaddle.score), GetScreenWidth() - (35 + 135), 10, 35 * rightPaddle.textScale, WHITE);
 
+		if (delayTimer <= -1) {
+			ball.canMove = true;
+			current_time = 0;
+		}
+		else {
+			delayTimer -= GetFrameTime();
+			std::cout << "Delay Timer: " << delayTimer << std::endl;
 
+
+			if (delayTimer <= 1.03f && delayTimer >= 1.0f || delayTimer <= 2.03f && delayTimer >= 2.0f || delayTimer <= 3.03f && delayTimer >= 3.0f) {
+				timerCountdown_fontSize = 125;
+				PlaySound(countdown_sound);
+			}
+			if (delayTimer <= 0.1f) {
+				SetSoundPitch(countdown_sound, 5);
+				PlaySound(countdown_sound);
+				//PlaySound(music);
+			}
+			
+			timerCountdown_fontSize -= 0.75f;
+			
+
+			std::string timerCountdown_text = (delayTimer <= 0.1f ? "GO!" : TextFormat("%.0f", (ceil(delayTimer) == 4 ? 3.0f : ceil(delayTimer))));
+
+			//DrawTextEx(GetFontDefault(), timerCountdown_text.c_str(), Vector2{ (float)GetScreenWidth() / 2 - MeasureText(timerCountdown_text.c_str(), 85) / 2, (float)GetScreenHeight() / 2 - 85 / 2}, 85, 2, BLACK);
+			DrawTextEx(GetFontDefault(), timerCountdown_text.c_str(), Vector2{(float)GetScreenWidth() / 2 - MeasureText(timerCountdown_text.c_str(), timerCountdown_fontSize) / 2, (float)GetScreenHeight() / 2 - timerCountdown_fontSize / 2}, timerCountdown_fontSize, 2, ORANGE);
+
+
+		}
 		//DrawFPS(10, 10); Use this to show FPS Counter
 		EndDrawing();
 	}

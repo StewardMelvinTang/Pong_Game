@@ -23,7 +23,7 @@
     <Media Include="goal.wav">
       <Filter>resources</Filter>
     </Media>
-    <Media Include="resources\music.wav">
+    <Media Include="resources\music01.wav">
       <Filter>resources</Filter>
     </Media>
     <Media Include="resources\hitpaddle.wav">
@@ -33,6 +33,12 @@
       <Filter>resources</Filter>
     </Media>
     <Media Include="resources\gameended.wav">
+      <Filter>resources</Filter>
+    </Media>
+    <Media Include="resources\music02.wav">
+      <Filter>resources</Filter>
+    </Media>
+    <Media Include="resources\music03.wav">
       <Filter>resources</Filter>
     </Media>
   </ItemGroup>

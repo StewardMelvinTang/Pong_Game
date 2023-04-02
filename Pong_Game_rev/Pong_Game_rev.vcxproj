@@ -88,12 +88,12 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\caket\OneDrive\C++Project\Pong_Game_rev\Pong_Game_rev\Libraries\raylib-4.5.0_win32_msvc16\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\Melvin\source\repos\Pong_Game_rev1\Pong_Game_rev\Libraries\raylib-4.5.0_win32_msvc16\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Users\caket\OneDrive\C++Project\Pong_Game_rev\Pong_Game_rev\Libraries\raylib-4.5.0_win32_msvc16\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Users\Melvin\source\repos\Pong_Game_rev1\Pong_Game_rev\Libraries\raylib-4.5.0_win32_msvc16\lib</AdditionalLibraryDirectories>
       <AdditionalDependencies>raylib.lib;winmm.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -152,7 +152,9 @@
     <Media Include="resources\bounce.wav" />
     <Media Include="resources\gameended.wav" />
     <Media Include="resources\hitpaddle.wav" />
-    <Media Include="resources\music.wav" />
+    <Media Include="resources\music01.wav" />
+    <Media Include="resources\music02.wav" />
+    <Media Include="resources\music03.wav" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
