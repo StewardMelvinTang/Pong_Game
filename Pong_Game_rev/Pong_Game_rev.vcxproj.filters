@@ -41,5 +41,16 @@
     <Media Include="resources\music03.wav">
       <Filter>resources</Filter>
     </Media>
+    <Media Include="resources\music_mainmenu.wav">
+      <Filter>resources</Filter>
+    </Media>
+    <Media Include="resources\music04.wav">
+      <Filter>resources</Filter>
+    </Media>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="resources\ponggame_icon.png">
+      <Filter>resources</Filter>
+    </Image>
   </ItemGroup>
 </Project>
