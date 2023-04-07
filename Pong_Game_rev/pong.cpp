@@ -277,6 +277,8 @@ int main()
 	clock_t start_time, current_time;
 	bool stopwatch_active = true;
 	start_time = clock();
+	int elapsed_time = 0;
+	std::string time_str = "00:00";
 
 	//init ball's stats
 	Ball ball;
@@ -363,6 +365,18 @@ int main()
 	while (!WindowShouldClose() && isApplicationRunning)
 	{
 		BeginDrawing();
+		//draw backgrounds assets
+		DrawRectangle(0, 0, GetScreenWidth() / 2, GetScreenHeight(), BG01);
+		DrawRectangle(GetScreenWidth() / 2, 0, GetScreenWidth() / 2, GetScreenHeight(), BG02);
+		DrawCircle(GetScreenWidth() / 2, GetScreenHeight() / 2, 125, circleColor);
+		DrawCircle(GetScreenWidth() / 2, GetScreenHeight() / 2, 5, LIGHTGRAY);
+		ClearBackground(BLACK); //clear the background to display a solid background color
+
+		//call draw functions
+		ball.Draw();
+		leftPaddle.Draw();
+		rightPaddle.Draw();
+
 		BTNtime += GetFrameTime();
 
 		if (ball.canMove) {
@@ -513,35 +527,59 @@ int main()
 			PlaySound(bounce_sound);
 			ball.canMove = false;
 			delayTimer = 4.0f;
-			current_time = 0;
 			trigger_TimerReseted = false;
 			leftPaddle.y = GetScreenHeight() / 2;
 			rightPaddle.y = GetScreenHeight() / 2;
 			
 		}
 
-		//start the rendering proccess and draw backgrounds
-		
-		DrawRectangle(0, 0, GetScreenWidth() / 2, GetScreenHeight(), BG01);
-		DrawRectangle(GetScreenWidth() / 2, 0, GetScreenWidth() / 2, GetScreenHeight(), BG02);
-		DrawCircle(GetScreenWidth() / 2, GetScreenHeight() / 2, 125, circleColor);
-		DrawCircle(GetScreenWidth() / 2, GetScreenHeight() / 2, 5, LIGHTGRAY);
-		ClearBackground(BLACK); //clear the background to display a solid background color
-		
-		
-		//call draw functions
-		ball.Draw();
-		leftPaddle.Draw();
-		rightPaddle.Draw();
-
-		//check if winnertext is valid, then draw texts onto the screen
-		if (winnerText)
-		{
-			int textWidth = MeasureText(winnerText, 60);
-			int spacetoRestartwidth = MeasureText(spacetoRestart, 25);
-			DrawText(winnerText, GetScreenWidth() / 2 - textWidth / 2, GetScreenHeight() / 2 - 30, 60, WHITE);
-			DrawText(spacetoRestart, GetScreenWidth() / 2 - spacetoRestartwidth / 2 , GetScreenHeight() / 2 + 50, 25, WHITE);
+		if (winnerText && IsKeyPressed(KEY_H) && !showMainmenu) {
+			showMainmenu = true;
+			ball.x = GetScreenWidth() / 2;
+			ball.y = GetScreenHeight() / 2;
+			ball.speedX = 240 * randomballstarting() * ballSpeedMultiplier;
+			ball.speedY = 240 * randomballstarting() * ballSpeedMultiplier;
+			winnerText = nullptr;
+			spacetoRestart = "";
+			leftPaddle.score = 0;
+			rightPaddle.speed = 600;
+			leftPaddle.speed = 600;
+			rightPaddle.score = 0;
+			ballMultiplierX = randomballstarting();
+			ballMultiplierY = randomballstarting();
+			start_time = clock();
+			ball.canMove = false;
+			delayTimer = 4.0f;
+			current_time = 0;
+			trigger_TimerReseted = false;
+			leftPaddle.y = GetScreenHeight() / 2;
+			rightPaddle.y = GetScreenHeight() / 2;
+			if (IsSoundPlaying(music)) {
+				UnloadSound(music);
+				PlaySound(mainmenuMusic);
+			}
 		}
+
+		//stopwatch system and elapsed 
+		if (stopwatch_active && !showMainmenu && !winnerText && ball.canMove) {
+			current_time = clock();
+			elapsed_time = current_time - start_time;
+			hours = elapsed_time / (60 * 60 * CLOCKS_PER_SEC);
+			elapsed_time -= hours * 60 * 60 * CLOCKS_PER_SEC;
+			minutes = elapsed_time / (60 * CLOCKS_PER_SEC);
+			elapsed_time -= minutes * 60 * CLOCKS_PER_SEC;
+			seconds = elapsed_time / CLOCKS_PER_SEC;
+			elapsed_time -= seconds * CLOCKS_PER_SEC;
+			milliseconds = elapsed_time * 1000 / CLOCKS_PER_SEC;
+
+			if (!timerCountdown_fontSize < 25) {
+				//draw the stopwatch to the screen with MM:SS format
+				time_str = (minutes < 10 ? "0" : "") + std::to_string(minutes) + ":" + (seconds < 10 ? "0" : "") + std::to_string(seconds);
+				DrawText(time_str.c_str(), GetScreenWidth() / 2 - (MeasureText(time_str.c_str(), 45)) / 2, 5, 45, WHITE);
+			}
+		}
+
+
 
 		//scores animation text
 		if (leftPaddle.scalingUp) {
@@ -580,26 +618,6 @@ int main()
 			DrawText(TextFormat("Score: %i", leftPaddle.score), 15, 10, 35 * leftPaddle.textScale, WHITE);
 			DrawText(TextFormat("Score: %i", rightPaddle.score), GetScreenWidth() - (35 + 135), 10, 35 * rightPaddle.textScale, WHITE);
 		}
-		
-
-		//stopwatch system and elapsed 
-		if (stopwatch_active && !showMainmenu && !winnerText && ball.canMove) {
-			current_time = clock();
-			int elapsed_time = current_time - start_time;
-			hours = elapsed_time / (60 * 60 * CLOCKS_PER_SEC);
-			elapsed_time -= hours * 60 * 60 * CLOCKS_PER_SEC;
-			minutes = elapsed_time / (60 * CLOCKS_PER_SEC);
-			elapsed_time -= minutes * 60 * CLOCKS_PER_SEC;
-			seconds = elapsed_time / CLOCKS_PER_SEC;
-			elapsed_time -= seconds * CLOCKS_PER_SEC;
-			milliseconds = elapsed_time * 1000 / CLOCKS_PER_SEC;
-			
-			if (!timerCountdown_fontSize < 25) {
-				//draw the stopwatch to the screen with MM:SS format
-				std::string time_str = (minutes < 10 ? "0" : "") + std::to_string(minutes) + ":" + (seconds < 10 ? "0" : "") + std::to_string(seconds);
-				DrawText(time_str.c_str(), GetScreenWidth() / 2 - (MeasureText(time_str.c_str(), 45)) / 2, 5, 45, WHITE);
-			}
-		}
 
 		if (delayTimer <= -1) {
 			ball.canMove = true;
@@ -613,9 +631,7 @@ int main()
 		}
 		else {
 			delayTimer -= GetFrameTime();
-			//std::cout << "Delay Timer: " << delayTimer << std::endl;
-
-
+			
 			if (delayTimer <= 1.03f && delayTimer >= 1.0f || delayTimer <= 2.03f && delayTimer >= 2.0f || delayTimer <= 3.03f && delayTimer >= 3.0f) {
 				timerCountdown_fontSize = 125;
 				PlaySound(countdown_sound);
@@ -660,7 +676,9 @@ int main()
 			WaitTime(0.75);
 			delayTimer = 4.0f;
 			ball.canMove = false;
-			UnloadSound(mainmenuMusic);
+			if (IsSoundPlaying(mainmenuMusic)) {
+				UnloadSound(mainmenuMusic);
+			}
 			trigger_PlayGame = false;
 		}
 
@@ -668,7 +686,6 @@ int main()
 		if (!IsSoundPlaying(music) && delayTimer <= 0) {
 			PlaySound(music);
 		}
-
 		if (!IsSoundPlaying(mainmenuMusic) && delayTimer > 0 && showMainmenu) {
 			PlaySound(mainmenuMusic);
 		}
@@ -676,6 +693,17 @@ int main()
 		//draw Hard Mode text
 		if (ballSpeedMultiplier > 1.0f) {
 			DrawText("HARD MODE", GetScreenWidth() / 2 - MeasureText("HARD MODE", 25) / 2, GetScreenHeight() - 35, 25, GRAY);
+		}
+		//check if winnertext is valid, then draw texts onto the screen
+		if (winnerText)
+		{
+			std::cout << time_str << std::endl;
+			int textWidth = MeasureText(winnerText, 60);
+			int spacetoRestartwidth = MeasureText(spacetoRestart, 25);
+			DrawText(TextFormat("Match Time : %s", time_str.c_str()), GetScreenWidth() / 2 - MeasureText(TextFormat("Match Time : %s", time_str.c_str()), 25) / 2, GetScreenHeight() / 2 - 50, 25, WHITE);
+			DrawText(winnerText, GetScreenWidth() / 2 - textWidth / 2, GetScreenHeight() / 2 - 30, 60, WHITE);
+			DrawText(spacetoRestart, GetScreenWidth() / 2 - spacetoRestartwidth / 2, GetScreenHeight() / 2 + 50, 25, WHITE);
+			DrawText("Press H to Return to the MainMenu", GetScreenWidth() / 2 - MeasureText("Press H to Return to the MainMenu", 25) / 2, GetScreenHeight() / 2 + 80, 25, WHITE);
 		}
 
 		//DrawFPS(10, 10); Use this to show FPS Counter
